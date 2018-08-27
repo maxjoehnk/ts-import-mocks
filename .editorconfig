@@ -1,0 +1,7 @@
+[*.ts]
+quote_style = 'single'
+indent_style = 'spaces'
+indent_size = 4
+
+[Makefile]
+indent_style = tab
