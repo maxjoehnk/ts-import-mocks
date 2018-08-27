@@ -1,5 +1,5 @@
 BIN_DIR=`npm bin`
-PRETTIER_PATTERN="src/**/*.ts"
+PRETTIER_PATTERN="{src,test}/**/*.ts"
 
 build:
 	${BIN_DIR}/tsc
@@ -8,7 +8,7 @@ watch:
 	${BIN_DIR}/tsc -w
 
 test:
-	${BIN_DIR}/mocha -r ts-node/register "src/**/*.spec.ts"
+	${BIN_DIR}/mocha -r ts-node/register "{src,test}/**/*.spec.ts"
 
 check:
 	${BIN_DIR}/tslint "src/**/*.ts"
@@ -16,6 +16,3 @@ check:
 
 pretty:
 	${BIN_DIR}/prettier --write ${PRETTIER_PATTERN}
-
-example:
-	${BIN_DIR}/mocha -r ts-node/register "examples/**/*.spec.ts"

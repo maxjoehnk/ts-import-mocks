@@ -7,13 +7,18 @@ export interface MockAst {
 export interface MockProperty {
     generator?: MockDataGenerator;
     ast?: MockAst;
-    type: 'string' | 'number' | 'boolean' | 'object';
+    type: string;
     name: string;
 }
 
 export enum MockDataGenerator {
     ID = 'id',
-    UUID = 'uuid'
+    UUID = 'uuid',
+    FutureDate = 'date.future',
+    PastDate = 'date.past',
+    Iban = 'iban',
+    FirstName = 'firstname',
+    LastName = 'lastname'
 }
 
 export class MockGenerator<T> {
@@ -56,6 +61,8 @@ export class MockGenerator<T> {
                 return faker.random.number();
             case 'boolean':
                 return faker.random.boolean();
+            case 'Date':
+                return new Date();
         }
     }
 
@@ -66,6 +73,18 @@ export class MockGenerator<T> {
                     this.generateId(property.name),
                     property.type
                 );
+            case MockDataGenerator.UUID:
+                return faker.random.uuid();
+            case MockDataGenerator.FutureDate:
+                return faker.date.future();
+            case MockDataGenerator.PastDate:
+                return faker.date.past();
+            case MockDataGenerator.Iban:
+                return faker.finance.iban();
+            case MockDataGenerator.FirstName:
+                return faker.name.firstName();
+            case MockDataGenerator.LastName:
+                return faker.name.lastName();
             default:
                 throw new Error('Not implemented');
         }

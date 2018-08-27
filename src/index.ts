@@ -9,7 +9,5 @@ export function requireMock<T>(filename: string): MockGenerator<T> {
     const path = resolve(dir, filename);
 
     const ast = generateAst(`${path}.ts`);
-    const generator = new MockGenerator<T>(ast);
-
-    return generator;
+    return new MockGenerator<T>(ast);
 }
