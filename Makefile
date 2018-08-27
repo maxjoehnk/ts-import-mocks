@@ -1,6 +1,8 @@
 BIN_DIR=`npm bin`
 PRETTIER_PATTERN="{src,test}/**/*.ts"
 
+.PHONY: build watch test check pretty
+
 build:
 	${BIN_DIR}/tsc
 
