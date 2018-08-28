@@ -11,7 +11,7 @@ const generator = requireMock<BasicInterface>('./basic-interface');
 describe('BasicInterface', () => {
     describe('should return an instance of the interface', () => {
         const mock = generator.generate();
-        
+
         it('should generate a number', () => {
             expect(mock.id).to.be.a('number');
         });

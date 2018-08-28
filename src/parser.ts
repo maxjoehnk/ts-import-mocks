@@ -1,4 +1,9 @@
-import { MockAst, MockDataGenerator, MockProperty } from './generator';
+import {
+    MockAst,
+    MockAsts,
+    MockDataGenerator,
+    MockProperty
+} from './contracts';
 import {
     createProgram,
     getCombinedModifierFlags,
@@ -7,16 +12,24 @@ import {
     isInterfaceDeclaration,
     isPropertySignature,
     isTypeLiteralNode,
+    isTypeReferenceNode,
     ModifierFlags,
     Node,
     PropertySignature,
+    SourceFile,
     SyntaxKind,
     TypeChecker
 } from 'typescript';
 
 const commentAnnotationRegex = /#\[([a-z.]+)\]/;
 
-export function generateAst(path: string): MockAst {
+interface TypescriptCompiler {
+    typeChecker: TypeChecker;
+    file: SourceFile;
+    text: string;
+}
+
+function typescriptSetup(path: string): TypescriptCompiler {
     const program = createProgram([path], {});
 
     const typeChecker = program.getTypeChecker();
@@ -24,22 +37,56 @@ export function generateAst(path: string): MockAst {
     const file = program.getSourceFile(path);
     const text = file.getText();
 
-    const interfaceDeclaration = findInterface(file);
+    return {
+        typeChecker,
+        file,
+        text
+    };
+}
 
-    const properties = interfaceDeclaration.members
+export function generateSingleAst(path: string): MockAst {
+    const compiler = typescriptSetup(path);
+
+    const interfaceDeclaration = findInterface(compiler.file);
+
+    return generateAstFromDeclaration(compiler, interfaceDeclaration);
+}
+
+export function generateMultipleAsts(path: string): MockAsts {
+    const compiler = typescriptSetup(path);
+
+    const interfaceDeclarations = findInterfaces(compiler.file);
+
+    const asts = {};
+
+    for (const interfaceDeclaration of interfaceDeclarations) {
+        const name = interfaceDeclaration.name.getText();
+        asts[name] = generateAstFromDeclaration(compiler, interfaceDeclaration);
+    }
+
+    return asts;
+}
+
+function generateAstFromDeclaration(
+    compiler: TypescriptCompiler,
+    declaration: InterfaceDeclaration
+): MockAst {
+    const name = declaration.name.getText();
+    const properties = declaration.members
         .filter(isPropertySignature)
-        .map(getPropertyFromMember(typeChecker, text));
+        .map(getPropertyFromMember(compiler));
 
     return {
+        name,
         properties
     };
 }
 
 function getPropertyFromMember(
-    typeChecker: TypeChecker,
-    text: string
+    compiler: TypescriptCompiler
 ): (node: PropertySignature) => MockProperty {
     function getProperty(node: PropertySignature): MockProperty {
+        const { typeChecker, text } = compiler;
         const comments = getLeadingCommentRanges(text, node.pos);
 
         const type = typeChecker.typeToString(
@@ -78,7 +125,7 @@ function getPropertyFromMember(
             };
 
             const properties = node.type.members.map(
-                getPropertyFromMember(typeChecker, text)
+                getPropertyFromMember(compiler)
             );
 
             property.ast = {
@@ -86,6 +133,26 @@ function getPropertyFromMember(
             };
 
             return property;
+        }
+        if (isTypeReferenceNode(node.type)) {
+            const type = compiler.typeChecker.getTypeFromTypeNode(node.type);
+            const symbol = type.getSymbol();
+
+            // FIXME: eh
+            if ((<any>symbol).declaredType == null) {
+                const declarations = symbol.getDeclarations();
+                const [declaration] = declarations; // FIXME: eh
+
+                if (isInterfaceDeclaration(declaration)) {
+                    const property: MockProperty = {
+                        name: node.name.getText(),
+                        type: 'object',
+                        ast: generateAstFromDeclaration(compiler, declaration)
+                    };
+
+                    return property;
+                }
+            }
         }
         return getProperty(node);
     };
@@ -103,6 +170,20 @@ function findInterface(node: Node): InterfaceDeclaration {
             return childInterface;
         }
     }
+}
+
+function findInterfaces(node: Node): InterfaceDeclaration[] {
+    let interfaces = [];
+
+    if (isInterfaceDeclaration(node) && isInterfaceExported(node)) {
+        interfaces.push(<InterfaceDeclaration>node);
+    }
+
+    for (const child of node.getChildren()) {
+        interfaces = [...interfaces, ...findInterfaces(child)];
+    }
+
+    return interfaces;
 }
 
 function isInterfaceExported(
