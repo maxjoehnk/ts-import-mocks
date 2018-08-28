@@ -1,27 +1,12 @@
 import * as faker from 'faker';
+import {
+    MockAst,
+    MockProperty,
+    MockDataGenerator,
+    IMockGenerator
+} from './contracts';
 
-export interface MockAst {
-    properties: MockProperty[];
-}
-
-export interface MockProperty {
-    generator?: MockDataGenerator;
-    ast?: MockAst;
-    type: string;
-    name: string;
-}
-
-export enum MockDataGenerator {
-    ID = 'id',
-    UUID = 'uuid',
-    FutureDate = 'date.future',
-    PastDate = 'date.past',
-    Iban = 'iban',
-    FirstName = 'firstname',
-    LastName = 'lastname'
-}
-
-export class MockGenerator<T> {
+export class MockGenerator<T> implements IMockGenerator<T> {
     private ids: Map<string, number> = new Map();
 
     constructor(private ast: MockAst) {}

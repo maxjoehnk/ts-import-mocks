@@ -1,6 +1,7 @@
 import 'mocha';
 import { expect, use } from 'chai';
-import { MockAst, MockDataGenerator, MockGenerator } from './generator';
+import { MockGenerator } from './generator';
+import { MockAst, MockDataGenerator } from './contracts';
 import chaiUuid = require('chai-uuid');
 
 use(chaiUuid);
@@ -75,7 +76,7 @@ describe('generator', () => {
                 {
                     type: 'string',
                     generator: MockDataGenerator.UUID,
-					name: 'uuidTest'
+                    name: 'uuidTest'
                 }
             ]
         };

@@ -1,4 +1,9 @@
-import { MockAst, MockDataGenerator, MockProperty } from './generator';
+import {
+    MockAst,
+    MockDataGenerator,
+    MockProperty,
+    MockAsts
+} from './contracts';
 import {
     createProgram,
     getCombinedModifierFlags,
@@ -16,7 +21,7 @@ import {
 
 const commentAnnotationRegex = /#\[([a-z.]+)\]/;
 
-export function generateAst(path: string): MockAst {
+export function generateSingleAst(path: string): MockAst {
     const program = createProgram([path], {});
 
     const typeChecker = program.getTypeChecker();
@@ -33,6 +38,34 @@ export function generateAst(path: string): MockAst {
     return {
         properties
     };
+}
+
+export function generateMultipleAsts(path: string): MockAsts {
+    const program = createProgram([path], {});
+
+    const typeChecker = program.getTypeChecker();
+
+    const file = program.getSourceFile(path);
+    const text = file.getText();
+
+    const interfaceDeclarations = findInterfaces(file);
+
+    const asts = {};
+
+    for (const interfaceDeclaration of interfaceDeclarations) {
+        const name = interfaceDeclaration.name.getText();
+        const properties = interfaceDeclaration.members
+            .filter(isPropertySignature)
+            .map(getPropertyFromMember(typeChecker, text));
+
+        asts[name] = {
+            properties
+        };
+    }
+
+    console.log(JSON.stringify(asts));
+
+    return asts;
 }
 
 function getPropertyFromMember(
@@ -103,6 +136,20 @@ function findInterface(node: Node): InterfaceDeclaration {
             return childInterface;
         }
     }
+}
+
+function findInterfaces(node: Node): InterfaceDeclaration[] {
+    let interfaces = [];
+
+    if (isInterfaceDeclaration(node) && isInterfaceExported(node)) {
+        interfaces.push(<InterfaceDeclaration>node);
+    }
+
+    for (const child of node.getChildren()) {
+        interfaces = [...interfaces, ...findInterfaces(child)];
+    }
+
+    return interfaces;
 }
 
 function isInterfaceExported(
