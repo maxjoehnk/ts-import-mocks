@@ -15,5 +15,5 @@ export interface BasicInterface {
 
     numberArray: number[];
 
-    fixedLengthArray: [number, number, number];
+    fixedLengthArray: [number, string, number];
 }

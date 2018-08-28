@@ -30,6 +30,12 @@ export interface MockArrayProperty {
     elementType: MockProperty;
 }
 
+export interface MockTupleProperty {
+    type: 'tuple';
+    name: string;
+    elementTypes: MockProperty[];
+}
+
 export interface MockObjectProperty {
     type: 'object';
     name: string;
@@ -39,7 +45,8 @@ export interface MockObjectProperty {
 export type MockProperty =
     | MockLiteralProperty
     | MockArrayProperty
-    | MockObjectProperty;
+    | MockObjectProperty
+    | MockTupleProperty;
 
 export enum MockDataGenerator {
     ID = 'id',

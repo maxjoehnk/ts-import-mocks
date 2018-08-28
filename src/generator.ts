@@ -5,7 +5,8 @@ import {
     IMockGenerator,
     MockLiteralProperty,
     MockArrayProperty,
-    MockProperty
+    MockProperty,
+    MockTupleProperty
 } from './contracts';
 
 const MIN_ARRAY_ITEMS = 1;
@@ -43,10 +44,12 @@ export class MockGenerator<T> implements IMockGenerator<T> {
                 return this.generateArray(property);
             case 'object':
                 return this.generateAst(property.ast);
+            case 'tuple':
+                return this.generateTuple(property);
         }
     }
 
-    private generateArray(property: MockArrayProperty): MockAst[] {
+    private generateArray(property: MockArrayProperty): any[] {
         const length = Math.max(
             MIN_ARRAY_ITEMS,
             faker.random.number(MAX_ARRAY_ITEMS)
@@ -54,6 +57,13 @@ export class MockGenerator<T> implements IMockGenerator<T> {
         return new Array(length)
             .fill(null)
             .map(() => this.generateProperty(property.elementType));
+    }
+
+    private generateTuple(property: MockTupleProperty): any[] {
+        const { length } = property.elementTypes;
+        return new Array(length)
+            .fill(null)
+            .map((_, i) => this.generateProperty(property.elementTypes[i]));
     }
 
     private generateLiteral(property: MockLiteralProperty): any {

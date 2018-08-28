@@ -5,7 +5,8 @@ import {
     MockDataGenerator,
     MockLiteralProperty,
     MockObjectProperty,
-    MockProperty
+    MockProperty,
+    MockTupleProperty
 } from './contracts';
 import {
     ArrayTypeNode,
@@ -17,6 +18,7 @@ import {
     isArrayTypeNode,
     isInterfaceDeclaration,
     isPropertySignature,
+    isTupleTypeNode,
     isTypeLiteralNode,
     isTypeReferenceNode,
     ModifierFlags,
@@ -24,6 +26,7 @@ import {
     PropertySignature,
     SourceFile,
     SyntaxKind,
+    TupleTypeNode,
     TypeChecker,
     TypeLiteralNode,
     TypeNode,
@@ -194,6 +197,23 @@ function getPropertyFromMember(
         return property;
     }
 
+    function getTupleTypeNode(
+        name: string,
+        node: TupleTypeNode
+    ): MockTupleProperty {
+        const elementTypes = node.elementTypes.map(elementType =>
+            resolveNodeType('ARRAY', elementType)
+        );
+
+        const property: MockTupleProperty = {
+            type: 'tuple',
+            name,
+            elementTypes
+        };
+
+        return property;
+    }
+
     function resolveNodeType(name: string, node: TypeNode): MockProperty {
         if (isTypeLiteralNode(node)) {
             return getInlineObjectNode(name, node);
@@ -207,6 +227,9 @@ function getPropertyFromMember(
 
         if (isArrayTypeNode(node)) {
             return getArrayTypeNode(name, node);
+        }
+        if (isTupleTypeNode(node)) {
+            return getTupleTypeNode(name, node);
         }
         return getLiteralProperty(name, node);
     }

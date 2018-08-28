@@ -35,7 +35,7 @@ describe('BasicInterface', () => {
 
             const [i1, i2, i3] = mock.fixedLengthArray;
             expect(i1).to.be.a('number');
-            expect(i2).to.be.a('number');
+            expect(i2).to.be.a('string');
             expect(i3).to.be.a('number');
         });
     });
