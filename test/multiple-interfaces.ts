@@ -1,15 +1,22 @@
-export interface Product {
+export interface RootLayer {
     // #[id]
     id: number;
 
     name: string;
 
-    price: number;
-
-    category: Category;
+    firstLayer: FirstLayer;
 }
 
-export interface Category {
+export interface FirstLayer {
+    // #[id]
+    id: number;
+
+    name: string;
+
+    secondLayer: SecondLayer;
+}
+
+export interface SecondLayer {
     // #[id]
     id: number;
 

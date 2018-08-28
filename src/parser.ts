@@ -1,8 +1,8 @@
 import {
     MockAst,
+    MockAsts,
     MockDataGenerator,
-    MockProperty,
-    MockAsts
+    MockProperty
 } from './contracts';
 import {
     createProgram,
@@ -12,16 +12,24 @@ import {
     isInterfaceDeclaration,
     isPropertySignature,
     isTypeLiteralNode,
+    isTypeReferenceNode,
     ModifierFlags,
     Node,
     PropertySignature,
+    SourceFile,
     SyntaxKind,
     TypeChecker
 } from 'typescript';
 
 const commentAnnotationRegex = /#\[([a-z.]+)\]/;
 
-export function generateSingleAst(path: string): MockAst {
+interface TypescriptCompiler {
+    typeChecker: TypeChecker;
+    file: SourceFile;
+    text: string;
+}
+
+function typescriptSetup(path: string): TypescriptCompiler {
     const program = createProgram([path], {});
 
     const typeChecker = program.getTypeChecker();
@@ -29,50 +37,56 @@ export function generateSingleAst(path: string): MockAst {
     const file = program.getSourceFile(path);
     const text = file.getText();
 
-    const interfaceDeclaration = findInterface(file);
-
-    const properties = interfaceDeclaration.members
-        .filter(isPropertySignature)
-        .map(getPropertyFromMember(typeChecker, text));
-
     return {
-        properties
+        typeChecker,
+        file,
+        text
     };
 }
 
+export function generateSingleAst(path: string): MockAst {
+    const compiler = typescriptSetup(path);
+
+    const interfaceDeclaration = findInterface(compiler.file);
+
+    return generateAstFromDeclaration(compiler, interfaceDeclaration);
+}
+
 export function generateMultipleAsts(path: string): MockAsts {
-    const program = createProgram([path], {});
+    const compiler = typescriptSetup(path);
 
-    const typeChecker = program.getTypeChecker();
-
-    const file = program.getSourceFile(path);
-    const text = file.getText();
-
-    const interfaceDeclarations = findInterfaces(file);
+    const interfaceDeclarations = findInterfaces(compiler.file);
 
     const asts = {};
 
     for (const interfaceDeclaration of interfaceDeclarations) {
         const name = interfaceDeclaration.name.getText();
-        const properties = interfaceDeclaration.members
-            .filter(isPropertySignature)
-            .map(getPropertyFromMember(typeChecker, text));
-
-        asts[name] = {
-            properties
-        };
+        asts[name] = generateAstFromDeclaration(compiler, interfaceDeclaration);
     }
-
-    console.log(JSON.stringify(asts));
 
     return asts;
 }
 
+function generateAstFromDeclaration(
+    compiler: TypescriptCompiler,
+    declaration: InterfaceDeclaration
+): MockAst {
+    const name = declaration.name.getText();
+    const properties = declaration.members
+        .filter(isPropertySignature)
+        .map(getPropertyFromMember(compiler));
+
+    return {
+        name,
+        properties
+    };
+}
+
 function getPropertyFromMember(
-    typeChecker: TypeChecker,
-    text: string
+    compiler: TypescriptCompiler
 ): (node: PropertySignature) => MockProperty {
     function getProperty(node: PropertySignature): MockProperty {
+        const { typeChecker, text } = compiler;
         const comments = getLeadingCommentRanges(text, node.pos);
 
         const type = typeChecker.typeToString(
@@ -111,7 +125,7 @@ function getPropertyFromMember(
             };
 
             const properties = node.type.members.map(
-                getPropertyFromMember(typeChecker, text)
+                getPropertyFromMember(compiler)
             );
 
             property.ast = {
@@ -119,6 +133,26 @@ function getPropertyFromMember(
             };
 
             return property;
+        }
+        if (isTypeReferenceNode(node.type)) {
+            const type = compiler.typeChecker.getTypeFromTypeNode(node.type);
+            const symbol = type.getSymbol();
+
+            // FIXME: eh
+            if ((<any>symbol).declaredType == null) {
+                const declarations = symbol.getDeclarations();
+                const [declaration] = declarations; // FIXME: eh
+
+                if (isInterfaceDeclaration(declaration)) {
+                    const property: MockProperty = {
+                        name: node.name.getText(),
+                        type: 'object',
+                        ast: generateAstFromDeclaration(compiler, declaration)
+                    };
+
+                    return property;
+                }
+            }
         }
         return getProperty(node);
     };

@@ -1,4 +1,5 @@
 export interface MockAst {
+    name?: string;
     properties: MockProperty[];
 }
 
