@@ -1,9 +1,9 @@
 import 'mocha';
 import { expect, use } from 'chai';
-// import * as chaiUuid from 'chai-uuid';
 import { MockAst, MockDataGenerator, MockGenerator } from './generator';
+import chaiUuid = require('chai-uuid');
 
-// use(chaiUuid);
+use(chaiUuid);
 
 describe('generator', () => {
     it('should generate a number', () => {
@@ -65,7 +65,7 @@ describe('generator', () => {
         expect(mock.booleanTest).to.be.a('boolean');
     });
 
-    /*it('should generate a uuid', () => {
+    it('should generate a uuid', () => {
         interface UuidTest {
             uuidTest: string;
         }
@@ -83,8 +83,8 @@ describe('generator', () => {
         const generator = new MockGenerator<UuidTest>(ast);
         const mock = generator.generate();
 
-        expect(mock.uuidTest).to.be.an.uuid('v4');
-    });*/
+        expect(mock.uuidTest).to.be.uuid('v4');
+    });
 
     it('should generate unique ids', () => {
         interface IdTest {

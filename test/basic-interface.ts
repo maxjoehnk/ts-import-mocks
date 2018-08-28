@@ -12,4 +12,8 @@ export interface BasicInterface {
     pastDate: Date;
 
     randomDate: Date;
+
+    numberArray: number[];
+
+    fixedLengthArray: [number, number, number];
 }

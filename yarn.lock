@@ -6,6 +6,12 @@
   version "1.0.30"
   resolved "https://registry.yarnpkg.com/@types/callsite/-/callsite-1.0.30.tgz#0854343ffc2141a48bf541a3afbb67cfe07562aa"
 
+"@types/chai-arrays@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@types/chai-arrays/-/chai-arrays-1.0.2.tgz#1f89c183c960334c47d9f24105195c4326db0cc7"
+  dependencies:
+    "@types/chai" "*"
+
 "@types/chai-uuid@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@types/chai-uuid/-/chai-uuid-1.0.0.tgz#9efbebf53e40d8128fb7261887e70c9ae6d52422"
@@ -91,6 +97,10 @@ builtin-modules@^1.1.1:
 callsite@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/callsite/-/callsite-1.0.0.tgz#280398e5d664bd74038b6f0905153e6e8af1bc20"
+
+chai-arrays@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/chai-arrays/-/chai-arrays-2.0.0.tgz#d95820d1b39dc2e4abaa01f984b7f9123986a7cc"
 
 chai-uuid@^1.0.6:
   version "1.0.6"
