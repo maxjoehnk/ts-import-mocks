@@ -1,14 +1,20 @@
 import {
+    MockArrayProperty,
     MockAst,
     MockAsts,
     MockDataGenerator,
+    MockLiteralProperty,
+    MockObjectProperty,
     MockProperty
 } from './contracts';
 import {
+    ArrayTypeNode,
+    CommentRange,
     createProgram,
     getCombinedModifierFlags,
     getLeadingCommentRanges,
     InterfaceDeclaration,
+    isArrayTypeNode,
     isInterfaceDeclaration,
     isPropertySignature,
     isTypeLiteralNode,
@@ -18,7 +24,10 @@ import {
     PropertySignature,
     SourceFile,
     SyntaxKind,
-    TypeChecker
+    TypeChecker,
+    TypeLiteralNode,
+    TypeNode,
+    TypeReferenceNode
 } from 'typescript';
 
 const commentAnnotationRegex = /#\[([a-z.]+)\]/;
@@ -82,79 +91,130 @@ function generateAstFromDeclaration(
     };
 }
 
+function getGeneratorFromComment(
+    text: string,
+    comments: CommentRange[]
+): MockDataGenerator {
+    const generators = comments
+        .map(comment => text.slice(comment.pos, comment.end))
+        .filter(comment => commentAnnotationRegex.test(comment))
+        .map(comment => commentAnnotationRegex.exec(comment)[1])
+        .filter(isGeneratorAnnotation);
+
+    if (generators.length === 1) {
+        return generators[0];
+    } else if (generators.length > 1) {
+        throw new Error(
+            `Multiple generators found ${JSON.stringify(generators)}`
+        );
+    }
+}
+
 function getPropertyFromMember(
     compiler: TypescriptCompiler
 ): (node: PropertySignature) => MockProperty {
-    function getProperty(node: PropertySignature): MockProperty {
+    function getLiteralProperty(
+        name: string,
+        node: TypeNode
+    ): MockLiteralProperty {
         const { typeChecker, text } = compiler;
         const comments = getLeadingCommentRanges(text, node.pos);
 
         const type = typeChecker.typeToString(
-            typeChecker.getTypeFromTypeNode(node.type)
+            typeChecker.getTypeFromTypeNode(node)
         );
 
-        const property: MockProperty = {
-            name: node.name.getText(),
-            type
+        const property: MockLiteralProperty = {
+            type: 'literal',
+            name,
+            literalType: type
         };
 
         if (comments) {
-            const generators = comments
-                .map(comment => text.slice(comment.pos, comment.end))
-                .filter(comment => commentAnnotationRegex.test(comment))
-                .map(comment => commentAnnotationRegex.exec(comment)[1])
-                .filter(isGeneratorAnnotation);
-
-            if (generators.length === 1) {
-                property.generator = generators[0];
-            } else if (generators.length > 1) {
-                throw new Error(
-                    `Multiple generators found ${JSON.stringify(generators)}`
-                );
-            }
+            property.generator = getGeneratorFromComment(text, comments);
         }
 
         return property;
     }
 
-    return (node: PropertySignature) => {
-        if (isTypeLiteralNode(node.type)) {
-            const property: MockProperty = {
-                name: node.name.getText(),
-                type: 'object'
-            };
+    function getInlineObjectNode(
+        name: string,
+        node: TypeLiteralNode
+    ): MockObjectProperty {
+        const properties = node.members.map(getPropertyFromMember(compiler));
 
-            const properties = node.type.members.map(
-                getPropertyFromMember(compiler)
-            );
-
-            property.ast = {
+        const property: MockObjectProperty = {
+            type: 'object',
+            name,
+            ast: {
                 properties
+            }
+        };
+
+        return property;
+    }
+
+    function getTypeReferenceNode(
+        name: string,
+        node: TypeReferenceNode
+    ): MockObjectProperty {
+        const type = compiler.typeChecker.getTypeFromTypeNode(node);
+        const symbol = type.getSymbol();
+
+        if ((<any>symbol).declaredType != null) {
+            throw new Error('FIXME'); // FIXME
+        }
+
+        const declarations = symbol.getDeclarations();
+        const [declaration] = declarations; // FIXME: eh
+
+        if (isInterfaceDeclaration(declaration)) {
+            const property: MockObjectProperty = {
+                type: 'object',
+                name,
+                ast: generateAstFromDeclaration(compiler, declaration)
             };
 
             return property;
         }
-        if (isTypeReferenceNode(node.type)) {
-            const type = compiler.typeChecker.getTypeFromTypeNode(node.type);
-            const symbol = type.getSymbol();
+    }
 
-            // FIXME: eh
-            if ((<any>symbol).declaredType == null) {
-                const declarations = symbol.getDeclarations();
-                const [declaration] = declarations; // FIXME: eh
+    function getArrayTypeNode(
+        name: string,
+        node: ArrayTypeNode
+    ): MockArrayProperty {
+        const elementType = resolveNodeType('ARRAY', node.elementType);
 
-                if (isInterfaceDeclaration(declaration)) {
-                    const property: MockProperty = {
-                        name: node.name.getText(),
-                        type: 'object',
-                        ast: generateAstFromDeclaration(compiler, declaration)
-                    };
+        const property: MockArrayProperty = {
+            type: 'array',
+            name,
+            elementType
+        };
 
-                    return property;
-                }
-            }
+        return property;
+    }
+
+    function resolveNodeType(name: string, node: TypeNode): MockProperty {
+        if (isTypeLiteralNode(node)) {
+            return getInlineObjectNode(name, node);
         }
-        return getProperty(node);
+        // FIXME: eh
+        if (isTypeReferenceNode(node)) {
+            try {
+                return getTypeReferenceNode(name, node);
+            } catch (err) {}
+        }
+
+        if (isArrayTypeNode(node)) {
+            return getArrayTypeNode(name, node);
+        }
+        return getLiteralProperty(name, node);
+    }
+
+    return (node: PropertySignature) => {
+        const name = node.name.getText();
+        const property = resolveNodeType(name, node.type);
+        return property;
     };
 }
 

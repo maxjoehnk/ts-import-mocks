@@ -17,12 +17,29 @@ export interface IMockGenerator<T> {
     reset(): void;
 }
 
-export interface MockProperty {
+export interface MockLiteralProperty {
+    type: 'literal';
     generator?: MockDataGenerator;
-    ast?: MockAst;
-    type: string;
+    literalType: string;
     name: string;
 }
+
+export interface MockArrayProperty {
+    type: 'array';
+    name: string;
+    elementType: MockProperty;
+}
+
+export interface MockObjectProperty {
+    type: 'object';
+    name: string;
+    ast: MockAst;
+}
+
+export type MockProperty =
+    | MockLiteralProperty
+    | MockArrayProperty
+    | MockObjectProperty;
 
 export enum MockDataGenerator {
     ID = 'id',

@@ -5,6 +5,8 @@ export interface RootLayer {
     name: string;
 
     firstLayer: FirstLayer;
+
+    arrayLayer: ArrayLayer[];
 }
 
 export interface FirstLayer {
@@ -21,4 +23,9 @@ export interface SecondLayer {
     id: number;
 
     name: string;
+}
+
+export interface ArrayLayer {
+    // #[id]
+    id: number;
 }

@@ -1,10 +1,15 @@
 import * as faker from 'faker';
 import {
     MockAst,
-    MockProperty,
     MockDataGenerator,
-    IMockGenerator
+    IMockGenerator,
+    MockLiteralProperty,
+    MockArrayProperty,
+    MockProperty
 } from './contracts';
+
+const MIN_ARRAY_ITEMS = 1;
+const MAX_ARRAY_ITEMS = 100;
 
 export class MockGenerator<T> implements IMockGenerator<T> {
     private ids: Map<string, number> = new Map();
@@ -24,22 +29,39 @@ export class MockGenerator<T> implements IMockGenerator<T> {
     private generateAst(ast: MockAst): any {
         const mock: any = {};
         for (const property of ast.properties) {
-            if (property.type === 'object') {
-                mock[property.name] = this.generateAst(property.ast);
-            } else {
-                mock[property.name] = this.generateProperty(property);
-            }
+            mock[property.name] = this.generateProperty(property);
         }
 
         return mock;
     }
 
     private generateProperty(property: MockProperty): any {
-        if ('generator' in property) {
+        switch (property.type) {
+            case 'literal':
+                return this.generateLiteral(property);
+            case 'array':
+                return this.generateArray(property);
+            case 'object':
+                return this.generateAst(property.ast);
+        }
+    }
+
+    private generateArray(property: MockArrayProperty): MockAst[] {
+        const length = Math.max(
+            MIN_ARRAY_ITEMS,
+            faker.random.number(MAX_ARRAY_ITEMS)
+        );
+        return new Array(length)
+            .fill(null)
+            .map(() => this.generateProperty(property.elementType));
+    }
+
+    private generateLiteral(property: MockLiteralProperty): any {
+        if (property.generator != null) {
             return this.generateCustomProperty(property);
         }
 
-        switch (property.type) {
+        switch (property.literalType) {
             case 'string':
                 return faker.random.words();
             case 'number':
@@ -51,12 +73,12 @@ export class MockGenerator<T> implements IMockGenerator<T> {
         }
     }
 
-    private generateCustomProperty(property: MockProperty): any {
+    private generateCustomProperty(property: MockLiteralProperty): any {
         switch (property.generator) {
             case MockDataGenerator.ID:
                 return convertValue(
                     this.generateId(property.name),
-                    property.type
+                    property.literalType
                 );
             case MockDataGenerator.UUID:
                 return faker.random.uuid();

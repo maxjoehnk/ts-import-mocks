@@ -3,8 +3,10 @@ import { expect, use } from 'chai';
 import { MockGenerator } from './generator';
 import { MockAst, MockDataGenerator } from './contracts';
 import chaiUuid = require('chai-uuid');
+import chaiArrays = require('chai-arrays');
 
 use(chaiUuid);
+use(chaiArrays);
 
 describe('generator', () => {
     it('should generate a number', () => {
@@ -15,7 +17,8 @@ describe('generator', () => {
         const ast: MockAst = {
             properties: [
                 {
-                    type: 'number',
+                    type: 'literal',
+                    literalType: 'number',
                     name: 'numberTest'
                 }
             ]
@@ -34,7 +37,8 @@ describe('generator', () => {
         const ast: MockAst = {
             properties: [
                 {
-                    type: 'string',
+                    type: 'literal',
+                    literalType: 'string',
                     name: 'stringTest'
                 }
             ]
@@ -54,7 +58,8 @@ describe('generator', () => {
         const ast: MockAst = {
             properties: [
                 {
-                    type: 'boolean',
+                    type: 'literal',
+                    literalType: 'boolean',
                     name: 'booleanTest'
                 }
             ]
@@ -74,7 +79,8 @@ describe('generator', () => {
         const ast: MockAst = {
             properties: [
                 {
-                    type: 'string',
+                    type: 'literal',
+                    literalType: 'string',
                     generator: MockDataGenerator.UUID,
                     name: 'uuidTest'
                 }
@@ -96,12 +102,14 @@ describe('generator', () => {
         const ast: MockAst = {
             properties: [
                 {
-                    type: 'number',
+                    type: 'literal',
+                    literalType: 'number',
                     generator: MockDataGenerator.ID,
                     name: 'id'
                 },
                 {
-                    type: 'number',
+                    type: 'literal',
+                    literalType: 'number',
                     generator: MockDataGenerator.ID,
                     name: 'userId'
                 }
@@ -124,7 +132,8 @@ describe('generator', () => {
         const ast: MockAst = {
             properties: [
                 {
-                    type: 'string',
+                    type: 'literal',
+                    literalType: 'string',
                     generator: MockDataGenerator.ID,
                     name: 'id'
                 }
@@ -134,5 +143,78 @@ describe('generator', () => {
         const generator = new MockGenerator<IdTest>(ast);
         const mock = generator.generate();
         expect(mock.id).to.be.a('string');
+    });
+
+    it('should generate a number array', () => {
+        interface ArrayTest {
+            array: number[];
+        }
+
+        const ast: MockAst = {
+            properties: [
+                {
+                    type: 'array',
+                    elementType: {
+                        type: 'literal',
+                        literalType: 'number',
+                        name: ''
+                    },
+                    name: 'array'
+                }
+            ]
+        };
+
+        const generator = new MockGenerator<ArrayTest>(ast);
+        const mock = generator.generate();
+        expect(mock.array).to.be.array();
+        for (const item of mock.array) {
+            expect(item).to.be.a('number');
+        }
+    });
+
+    it('should generate an array of objects', () => {
+        interface ArrayTest {
+            array: {
+                id: number;
+                name: string;
+            }[];
+        }
+
+        const ast: MockAst = {
+            properties: [
+                {
+                    type: 'array',
+                    elementType: {
+                        type: 'object',
+                        name: 'Nested',
+                        ast: {
+                            name: 'Nested',
+                            properties: [
+                                {
+                                    name: 'id',
+                                    type: 'literal',
+                                    literalType: 'number',
+                                    generator: MockDataGenerator.ID
+                                },
+                                {
+                                    name: 'name',
+                                    type: 'literal',
+                                    literalType: 'string'
+                                }
+                            ]
+                        }
+                    },
+                    name: 'array'
+                }
+            ]
+        };
+
+        const generator = new MockGenerator<ArrayTest>(ast);
+        const mock = generator.generate();
+        expect(mock.array).to.be.array();
+        for (const item of mock.array) {
+            expect(item.id).to.be.a('number');
+            expect(item.name).to.be.a('string');
+        }
     });
 });

@@ -1,8 +1,13 @@
 import 'mocha';
-import { expect } from 'chai';
+import { expect, use } from 'chai';
 import { RootLayer, FirstLayer, SecondLayer } from './multiple-interfaces';
 import { requireMocks } from '../src';
 import { MockGenerator } from '../src/generator';
+import chaiArrays = require('chai-arrays');
+import chaiUuid = require('chai-uuid');
+
+use(chaiArrays);
+use(chaiUuid);
 
 const {
     RootLayerMock
@@ -25,6 +30,11 @@ describe('Multiple Interfaces', () => {
 
             expect(mock.firstLayer.secondLayer.id).to.be.a('number');
             expect(mock.firstLayer.secondLayer.name).to.be.a('string');
+
+            expect(mock.arrayLayer).to.be.array();
+            for (const arrayLayer of mock.arrayLayer) {
+                expect(arrayLayer.id).to.be.a('number');
+            }
         });
     });
 });
