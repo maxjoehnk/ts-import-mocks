@@ -22,18 +22,18 @@ describe('Multiple Interfaces', () => {
         it('should return an instance of the interface', () => {
             const mock = RootLayerMock.generate();
 
-            expect(mock.id).to.be.a('number');
+            expect(mock.uuid).to.be.uuid('v4');
             expect(mock.name).to.be.a('string');
 
-            expect(mock.firstLayer.id).to.be.a('number');
+            expect(mock.firstLayer.uuid).to.be.uuid('v4');
             expect(mock.firstLayer.name).to.be.a('string');
 
-            expect(mock.firstLayer.secondLayer.id).to.be.a('number');
+            expect(mock.firstLayer.secondLayer.uuid).to.be.uuid('v4');
             expect(mock.firstLayer.secondLayer.name).to.be.a('string');
 
             expect(mock.arrayLayer).to.be.array();
             for (const arrayLayer of mock.arrayLayer) {
-                expect(arrayLayer.id).to.be.a('number');
+                expect(arrayLayer.uuid).to.be.uuid('v4');
             }
         });
     });

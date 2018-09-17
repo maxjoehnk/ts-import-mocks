@@ -3,8 +3,10 @@ import { expect, use } from 'chai';
 import { BasicInterface } from './basic-interface';
 import { requireMock } from '../src';
 import chaiArrays = require('chai-arrays');
+import chaiUuid = require('chai-uuid');
 
 use(chaiArrays);
+use(chaiUuid);
 
 const generator = requireMock<BasicInterface>('./basic-interface');
 
@@ -14,6 +16,10 @@ describe('BasicInterface', () => {
 
         it('should generate a number', () => {
             expect(mock.id).to.be.a('number');
+        });
+
+        it('should generate an uuid', () => {
+            expect(mock.uuid).to.be.uuid('v4');
         });
 
         it('should generate a string', () => {

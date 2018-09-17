@@ -2,6 +2,9 @@ export interface BasicInterface {
     // #[id]
     id: number;
 
+    // #[uuid]
+    uuid: string;
+
     // this is a random string
     randomString: string;
 

@@ -1,8 +1,10 @@
 export interface NestedInterface {
-    // #[id]
-    id: number;
+    // #[uuid]
+    uuid: string;
 
     user: {
+        // #[uuid]
+        uuid: string;
         // #[firstname]
         firstName: string;
         // #[lastname]

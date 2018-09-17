@@ -118,13 +118,15 @@ function getPropertyFromMember(
 ): (node: PropertySignature) => MockProperty {
     function getLiteralProperty(
         name: string,
-        node: TypeNode
+        typeNode: TypeNode,
+        node: PropertySignature
     ): MockLiteralProperty {
         const { typeChecker, text } = compiler;
-        const comments = getLeadingCommentRanges(text, node.pos);
+        const comments =
+            node && getLeadingCommentRanges(text, node.getFullStart());
 
         const type = typeChecker.typeToString(
-            typeChecker.getTypeFromTypeNode(node)
+            typeChecker.getTypeFromTypeNode(typeNode)
         );
 
         const property: MockLiteralProperty = {
@@ -214,29 +216,33 @@ function getPropertyFromMember(
         return property;
     }
 
-    function resolveNodeType(name: string, node: TypeNode): MockProperty {
-        if (isTypeLiteralNode(node)) {
-            return getInlineObjectNode(name, node);
+    function resolveNodeType(
+        name: string,
+        typeNode: TypeNode,
+        node?: PropertySignature
+    ): MockProperty {
+        if (isTypeLiteralNode(typeNode)) {
+            return getInlineObjectNode(name, typeNode);
         }
         // FIXME: eh
-        if (isTypeReferenceNode(node)) {
+        if (isTypeReferenceNode(typeNode)) {
             try {
-                return getTypeReferenceNode(name, node);
+                return getTypeReferenceNode(name, typeNode);
             } catch (err) {}
         }
 
-        if (isArrayTypeNode(node)) {
-            return getArrayTypeNode(name, node);
+        if (isArrayTypeNode(typeNode)) {
+            return getArrayTypeNode(name, typeNode);
         }
-        if (isTupleTypeNode(node)) {
-            return getTupleTypeNode(name, node);
+        if (isTupleTypeNode(typeNode)) {
+            return getTupleTypeNode(name, typeNode);
         }
-        return getLiteralProperty(name, node);
+        return getLiteralProperty(name, typeNode, node);
     }
 
     return (node: PropertySignature) => {
         const name = node.name.getText();
-        const property = resolveNodeType(name, node.type);
+        const property = resolveNodeType(name, node.type, node);
         return property;
     };
 }

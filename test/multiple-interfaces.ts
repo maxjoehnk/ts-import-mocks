@@ -1,6 +1,6 @@
 export interface RootLayer {
-    // #[id]
-    id: number;
+    // #[uuid]
+    uuid: string;
 
     name: string;
 
@@ -10,8 +10,8 @@ export interface RootLayer {
 }
 
 export interface FirstLayer {
-    // #[id]
-    id: number;
+    // #[uuid]
+    uuid: string;
 
     name: string;
 
@@ -19,13 +19,13 @@ export interface FirstLayer {
 }
 
 export interface SecondLayer {
-    // #[id]
-    id: number;
+    // #[uuid]
+    uuid: string;
 
     name: string;
 }
 
 export interface ArrayLayer {
-    // #[id]
-    id: number;
+    // #[uuid]
+    uuid: string;
 }
