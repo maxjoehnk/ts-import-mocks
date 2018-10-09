@@ -1,12 +1,10 @@
 import { MockGenerator } from './generator';
 import { generateSingleAst, generateMultipleAsts } from './parser';
-import * as callsite from 'callsite';
 import { resolve, parse } from 'path';
 import { MockGenerators } from './contracts';
 
 export function requireMock<T>(filename: string): MockGenerator<T> {
-    const [_, callee] = callsite();
-    const { dir } = parse(callee.getFileName());
+    const { dir } = parse(module.parent.filename);
     const path = resolve(dir, filename);
 
     const ast = generateSingleAst(`${path}.ts`);
@@ -14,8 +12,7 @@ export function requireMock<T>(filename: string): MockGenerator<T> {
 }
 
 export function requireMocks(filename: string): MockGenerators {
-    const [_, callee] = callsite();
-    const { dir } = parse(callee.getFileName());
+    const { dir } = parse(module.parent.filename);
     const path = resolve(dir, filename);
 
     const asts = generateMultipleAsts(`${path}.ts`);

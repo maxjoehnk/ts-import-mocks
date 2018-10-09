@@ -6,7 +6,6 @@
   "author": "Max Jöhnk <maxjoehnk@gmail.com>",
   "license": "GPL-3.0",
   "dependencies": {
-    "callsite": "^1.0.0",
     "faker": "^4.1.0",
     "typescript": "^3.0.1"
   },
