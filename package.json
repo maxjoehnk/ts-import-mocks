@@ -5,6 +5,15 @@
   "repository": "https://github.com/maxjoehnk/timing",
   "author": "Max Jöhnk <maxjoehnk@gmail.com>",
   "license": "GPL-3.0",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "mocha -r ts-node/register {src,test}/**/*.spec.ts",
+    "lint": "tslint -c tslint.json -p tsconfig.json src/**/*.ts",
+    "prettier:diff": "prettier --list-different {src,test}/**/*.ts",
+    "prettier:write": "prettier --write {src,test}/**/*.ts",
+    "lint:check": "npm run lint && npm run prettier:diff"
+  },
   "dependencies": {
     "faker": "^4.1.0",
     "typescript": "^3.0.1"
