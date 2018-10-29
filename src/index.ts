@@ -3,7 +3,7 @@ import { generateSingleAst, generateMultipleAsts } from './parser';
 import { resolve, parse } from 'path';
 import { MockGenerators } from './contracts';
 
-export function requireMock<T>(filename: string): MockGenerator<T> {
+export function importMock<T>(filename: string): MockGenerator<T> {
     const { dir } = parse(module.parent.filename);
     const path = resolve(dir, filename);
 
@@ -11,7 +11,7 @@ export function requireMock<T>(filename: string): MockGenerator<T> {
     return new MockGenerator<T>(ast);
 }
 
-export function requireMocks(filename: string): MockGenerators {
+export function importMocks(filename: string): MockGenerators {
     const { dir } = parse(module.parent.filename);
     const path = resolve(dir, filename);
 

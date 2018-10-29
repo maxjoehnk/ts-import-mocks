@@ -1,14 +1,14 @@
 import 'mocha';
 import { expect, use } from 'chai';
 import { BasicInterface } from './basic-interface';
-import { requireMock } from '../src';
+import { importMock } from '../src';
 import chaiArrays = require('chai-arrays');
 import chaiUuid = require('chai-uuid');
 
 use(chaiArrays);
 use(chaiUuid);
 
-const generator = requireMock<BasicInterface>('./basic-interface');
+const generator = importMock<BasicInterface>('./basic-interface');
 
 describe('BasicInterface', () => {
     describe('should return an instance of the interface', () => {

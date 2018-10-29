@@ -1,9 +1,9 @@
 import 'mocha';
 import { expect } from 'chai';
 import { NestedInterface } from './nested-interface';
-import { requireMock } from '../src';
+import { importMock } from '../src';
 
-const generator = requireMock<NestedInterface>('./nested-interface');
+const generator = importMock<NestedInterface>('./nested-interface');
 
 describe('NestedInterface', () => {
     it('should return an instance of the interface', () => {

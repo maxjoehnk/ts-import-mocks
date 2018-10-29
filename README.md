@@ -29,10 +29,10 @@ my-interface.ts
 
 my-interface.spec.ts
 ```typescript
-	import { requireMock } from 'timing';
+	import { importMock } from 'timing';
 	import { MyInterface } from './my-interface';
 	
-	const mock = requireMock<MyInterface>('./my-interface');
+	const mock = importMock<MyInterface>('./my-interface');
 	
 	test('', () => {
 		const data: MyInterface = mock.generate();

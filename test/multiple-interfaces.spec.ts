@@ -1,7 +1,7 @@
 import 'mocha';
 import { expect, use } from 'chai';
 import { RootLayer, FirstLayer, SecondLayer } from './multiple-interfaces';
-import { requireMocks } from '../src';
+import { importMocks } from '../src';
 import { MockGenerator } from '../src/generator';
 import chaiArrays = require('chai-arrays');
 import chaiUuid = require('chai-uuid');
@@ -15,7 +15,7 @@ const {
     RootLayerMock: MockGenerator<RootLayer>;
     FirstLayerMock: MockGenerator<FirstLayer>;
     SecondLayerMock: MockGenerator<SecondLayer>;
-} = <any>requireMocks('./multiple-interfaces');
+} = <any>importMocks('./multiple-interfaces');
 
 describe('Multiple Interfaces', () => {
     describe('RootLayerMock', () => {
