@@ -17,6 +17,9 @@
     "lint:check": "npm run lint && npm run prettier:diff",
     "prepublish": "yarn lint:check && yarn test && yarn build"
   },
+  "files": [
+    "lib/**/*"
+  ],
   "dependencies": {
     "faker": "^4.1.0",
     "typescript": "^3.0.1"
