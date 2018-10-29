@@ -1,8 +1,8 @@
 {
-  "name": "timing",
+  "name": "ts-import-mocks",
   "version": "0.0.1",
   "main": "lib/index.js",
-  "repository": "https://github.com/maxjoehnk/timing",
+  "repository": "https://github.com/maxjoehnk/ts-import-mocks",
   "author": "Max Jöhnk <maxjoehnk@gmail.com>",
   "license": "GPL-3.0",
   "scripts": {
