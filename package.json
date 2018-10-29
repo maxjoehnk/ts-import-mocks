@@ -21,7 +21,6 @@
     "typescript": "^3.0.1"
   },
   "devDependencies": {
-    "@types/callsite": "^1.0.30",
     "@types/chai": "^4.1.4",
     "@types/chai-arrays": "^1.0.2",
     "@types/chai-uuid": "^1.0.0",

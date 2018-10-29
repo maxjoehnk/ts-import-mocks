@@ -2,10 +2,6 @@
 # yarn lockfile v1
 
 
-"@types/callsite@^1.0.30":
-  version "1.0.30"
-  resolved "https://registry.yarnpkg.com/@types/callsite/-/callsite-1.0.30.tgz#0854343ffc2141a48bf541a3afbb67cfe07562aa"
-
 "@types/chai-arrays@^1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@types/chai-arrays/-/chai-arrays-1.0.2.tgz#1f89c183c960334c47d9f24105195c4326db0cc7"
