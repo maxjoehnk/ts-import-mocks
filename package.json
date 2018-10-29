@@ -1,6 +1,6 @@
 {
   "name": "ts-import-mocks",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "lib/index.js",
   "repository": "https://github.com/maxjoehnk/ts-import-mocks",
   "author": "Max Jöhnk <maxjoehnk@gmail.com>",
