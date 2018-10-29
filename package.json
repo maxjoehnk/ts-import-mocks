@@ -14,7 +14,8 @@
     "lint": "tslint -c tslint.json -p tsconfig.spec.json src/**/*.ts",
     "prettier:diff": "prettier --list-different {src,test}/**/*.ts",
     "prettier:write": "prettier --write {src,test}/**/*.ts",
-    "lint:check": "npm run lint && npm run prettier:diff"
+    "lint:check": "npm run lint && npm run prettier:diff",
+    "prepublish": "yarn lint:check && yarn test && yarn build"
   },
   "dependencies": {
     "faker": "^4.1.0",
