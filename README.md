@@ -26,7 +26,7 @@ my-interface.ts
 
 my-interface.spec.ts
 ```typescript
-	import { importMock } from 'timing';
+	import { importMock } from 'ts-import-mocks';
 	import { MyInterface } from './my-interface';
 	
 	const mock = importMock<MyInterface>('./my-interface');
